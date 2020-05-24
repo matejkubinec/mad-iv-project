@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAD IV Projekt (KUB0462)</title>
+    <style>
+        * {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        *:not(a) {
+            color: #323130;
+        }
+
+        a {
+            color: #0078d4;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #faf9f8;
+            min-width: 100%;
+            min-height: 100%;
+        }
+
+        .content {
+            border-radius: 4px;
+            box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, .132), 0 0.3px 0.9px 0 rgba(0, 0, 0, .108);
+            background-color: rgb(255, 255, 255);
+            margin: 1em;
+            padding: 28px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 600;
+            line-height: 1;
+            margin: 0.5em 0;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1;
+            margin: 0.5em 0;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1;
+            margin: 0.5em 0;
+        }
+
+        hr {
+            background-color: rgb(243, 242, 241);
+            height: 1px;
+            margin: 5px;
+            border: none;
+        }
+
+        code {
+            background-color: rgb(243, 242, 241);
+            border: 1px solid rgb(243, 242, 241);
+            border-radius: 4px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table,
+        tr,
+        th,
+        td {
+            border: 1px solid rgb(216, 216, 216);
+            border-collapse: collapse;
+        }
+
+        table th {
+            text-align: center;
+            font-weight: 600;
+            background-color: rgb(243, 242, 241);
+        }
+
+        table td,
+        th {
+            padding: 0.25em;
+        }
+
+        strong {
+            font-weight: 600;
+        }
+
+        img {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <h1 id="title">MAD IV - Matej Kubinec - Microsoft Malware Prediction</h1>
+        <hr>
+        <section>
+            <h2>Obsah</h2>
+            <p>
+            <ul>
+                <li><a href="#overview">Prehľad dátovej sady</a></li>
+                <li><a href="#exploratory-analysis">Exploratívna analýza</a></li>
+            </ul>
+            </p>
+        </section>
+        <section>
+            <h2 id="overview">Prehľad dátovej sady</h2>
+            <p>
+                Data pochádzajú od Microsoft-u v rámci Kaggle súťaže Microsoft
+                Malware Prediction. Cieľom súťaže je predikcia pravdepodobnosti
+                nakazenia počítača s operačným systémom Windows vírus. Dáta boli
+                zozbierané na základe hearbeat a threat reportoch Windows Defenderom.
+            </p>
+            <p>
+                Každý záznam v dátovej sade zaznamenáva jeden počítač, unikátne
+                identifikovateľný pomocou <code>MachineIdentifier</code>.
+                <code>HasDetections</code> určuje, či je daný prístroj infikovaný.
+                Cieľom je použitie informácií a značiek v <code>train.csv</code>
+                za účelom predikcie hodnoty <code>HasInfections</code> pre každý
+                prístroj z <code>test.csv</code>.
+            </p>
+            <p>
+                Stĺpce:
+            <ul>
+                <li>
+                    <code>MachineIdentifier</code> - Individuálne ID prístroja
+                </li>
+                <li>
+                    <code>ProductName</code> - informácia o stave Windows Defendera
+                    napr. win8defender
+                </li>
+                <li>
+                    <code>EngineVersion</code> - Verzia jadra WD, napr. 1.1.12603.0
+                </li>
+                <li>
+                    <code>AppVersion</code> - Verzia WD, napr. 4.9.10586.0
+                </li>
+                <li>
+                    <code>AvSigVersion</code> - Verzia signatúry antivírusu,
+                    napr. 1.217.1014.0
+                </li>
+                <li>
+                    <code>IsBeta</code> - Beta verzia WD, napr. false
+                </li>
+                <li>
+                    <code>RtpStateBitfield</code> - NA
+                </li>
+                <li>
+                    <code>IsSxsPassiveMode</code> - NA
+                </li>
+                <li>
+                    <code>DefaultBrowsersIdentifier</code> - Identifikátor
+                    predvoleného prehliadača prístroja
+                </li>
+                <li>
+                    <code>AVProductStatesIdentifier</code> - Identifikátor
+                    špecifickej konfigurácie antivírusového softvéru
+                </li>
+                <li>
+                    <code>AVProductsInstalled</code> - NA
+                </li>
+                <li>
+                    <code>AVProductsEnabled</code> - NA
+                </li>
+                <li>
+                    <code>HasTpm</code> - True, ak má stroj tpm
+                </li>
+                <li>
+                    <code>CountryIdentifier</code> - Identifikátor krajiny
+                    prístroja
+                </li>
+                <li>
+                    <code>CityIdentifier</code> - Identifikátor mesta prístroja
+                </li>
+                <li>
+                    <code>OrganizationIdentifier</code> - Identifikátor organizácie,
+                    ktorej prístroj patrí, organizačné ID je namapované na
+                    špecifické spoločnosti aj priemysel
+                </li>
+                <li>
+                    <code>GeoNameIdentifier</code> - Identifikátor geografického
+                    regiónu prístroja
+                </li>
+                <li>
+                    <code>LocaleEnglishNameIdentifier</code> - Anglické meno
+                    LocaleID aktuálneho užívateľa
+                </li>
+                <li>
+                    <code>Platform</code> - Meno platformy (vypočítané z vlastností
+                    procesora a vlastností spojených s OS)
+                </li>
+                <li>
+                    <code>Processor</code> - Procesná architektúra inštalovaného
+                    operačného systému
+                </li>
+                <li>
+                    <code>OsVer</code> - Verzia operačného systému
+                </li>
+                <li>
+                    <code>OsBuild</code> - Build operačného systému
+                </li>
+                <li>
+                    <code>OsSuite</code> - Product suite mask aktuálneho operačného
+                    systému.
+                </li>
+                <li>
+                    <code>OsPlatformSubRelease</code> - Podverzia operačného systému
+                    (Windows Vista, Windows 7, Windows 8, TH1, TH2)
+                </li>
+                <li>
+                    <code>OsBuildLab</code> - Build lab generovaný OS.
+                    napr. 9600.17630.amd64fre.winblue_r7.150109-2022
+                </li>
+                <li>
+                    <code>SkuEdition</code>
+                    <!-- TODO: specify product type The goal of this feature is to use the Product Type defined in the MSDN to map
+                to a 'SKU-Edition' name that is useful in population reporting. The valid Product Type are defined in
+                %sdxroot%\data\windowseditions.xml. This API has been used since Vista and Server 2008, so there are
+                many Product Types that do not apply to Windows 10. The 'SKU-Edition' is a string value that is in one
+                of three classes of results. The design must hand each class. -->
+                </li>
+                <li>
+                    <code>IsProtected</code> - Vypočítaný field zo Spynet Report's
+                    AV Products. TRUE, ak je nainštalovaný (a aktívny) aspoň jeden
+                    antivírusový program. FALSE ak nie je program aktívny, alebo
+                    nemá najaktuálnejšiu databázu. NULL, ak nie je žiaden antivírusový
+                    program v reporte.
+                </li>
+                <li>
+                    <code>AutoSampleOptIn</code> - Hodnota <i>SubmitSamplesConsent</i>, dostupna na CAMP 9+.
+                </li>
+                <li>
+                    <code>PuaMode</code> - Určuje, či je
+                    <a
+                        href="https://docs.microsoft.com/en-us/windows/security/threat-protection/windows-defender-antivirus/detect-block-potentially-unwanted-apps-windows-defender-antivirus">
+                        PUA mód
+                    </a> spustený.
+                </li>
+                <li>
+                    <code>SMode</code> - Určuje, či je počítač s Win10 v <a
+                        href="https://www.microsoft.com/en-us/windows/s-mode">S móde</a>.
+                </li>
+                <li>
+                    <code>IeVerIdentifier</code> - NA
+                </li>
+                <li>
+                    <code>SmartScreen</code> - Určuje, či je <a
+                        href="https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-smartscreen/microsoft-defender-smartscreen-overview">smartscreen</a>
+                    spustený.
+                </li>
+                <li>
+                    <code>Firewall</code> - TRUE, ak pre Windows 8.1 a vyššie je zapnutý windows firewall.
+                </li>
+                <li>
+                    <code>UacLuaenable</code> - Určuje je <a
+                        href="https://docs.microsoft.com/en-us/windows/security/identity-protection/user-account-control/user-account-control-overview">UAC</a>
+                    v
+                    móde, kde sa vyžaduje schválenie administrátorom.
+                </li>
+                <li>
+                    <code>Census_MDC2FormFactor</code> - Zhluknutie založené na kombinácií hardvérových charakteristík
+                    Device Census Level-u.
+                    napr.: Smartphone, Small Tablet, All in One, Convertible...
+                </li>
+                <li>
+                    <code>Census_DeviceFamily</code> - AKA DeviceClass. Indikuje typ zariadenia, pre ktoré je OS určený.
+                    napr. Windows.Desktop, Windows.Mobile, iOS.Phone
+                </li>
+                <li>
+                    <code>Census_OEMNameIdentifier</code> - NA
+                </li>
+                <li>
+                    <code>Census_OEMModelIdentifier</code> - NA
+                </li>
+                <li>
+                    <code>Census_ProcessorCoreCount</code> - Počet logických jadier v počítači.
+                </li>
+                <li>
+                    <code>Census_ProcessorManufacturerIdentifier</code> - NA
+                </li>
+                <li>
+                    <code>Census_ProcessorModelIdentifier</code> - NA
+                </li>
+                <li>
+                    <code>Census_ProcessorClass</code> - Klasifikácia procesora do high/medium/low.
+                </li>
+                <li>
+                    <code>Census_PrimaryDiskTotalCapacity</code> - Voľná kapacita disku v MB.
+                </li>
+                <li>
+                    <code>Census_PrimaryDiskTypeName</code> - HDD alebo SSD
+                </li>
+                <li>
+                    <code>Census_SystemVolumeTotalCapacity</code> - Veľkosť partície (v MB), kde je nainštalovaný
+                    operačný systém.
+                </li>
+                <li>
+                    <code>Census_HasOpticalDiskDrive</code> - True, ak ma počítač optickú mechaniku. (CD/DVD)
+                </li>
+                <li>
+                    <code>Census_TotalPhysicalRAM</code> - Kapacita RAM v MB.
+                </li>
+                <li>
+                    <code>Census_ChassisTypeName</code> - Numerická reprezentácia šasi prístroja.
+                </li>
+                <li>
+                    <code>Census_InternalPrimaryDiagonalDisplaySizeInInches</code> - Diagonálna dlžka displeja v
+                    palcoch.
+                </li>
+                <li>
+                    <code>Census_InternalPrimaryDisplayResolutionHorizontal</code> - Počet pixelov horizontálne.
+                </li>
+                <li>
+                    <code>Census_InternalPrimaryDisplayResolutionVertical</code> - Počet pixelov vertikálne.
+                </li>
+                <li>
+                    <code>Census_PowerPlatformRoleName</code> - OEM preferovaný napájací profil.
+                </li>
+                <li>
+                    <code>Census_InternalBatteryType</code> - NA
+                </li>
+                <li>
+                    <code>Census_InternalBatteryNumberOfCharges</code> - NA
+                </li>
+                <li>
+                    <code>Census_OSVersion</code> - Numerická verzia OS, napr. 10.0.10130.0
+                </li>
+                <li>
+                    <code>Census_OSArchitecture</code> - Architektúra OS, napr. amd64
+                </li>
+                <li>
+                    <code>Census_OSBranch</code> - vetva operačného systému, napr.
+                    6.4.9813.0.amd64fre.fbl_partner_eeap.140810-0005
+                </li>
+                <li>
+                    <code>Census_OSBuildNumber</code> - Verzia OS Build, napr. 10512, 10240
+                </li>
+                <li>
+                    <code>Census_OSBuildRevision</code> - Revízia OS Buildu, napr.1000, 16458
+                </li>
+                <li>
+                    <code>Census_OSEdition</code> - Edícia OS, napr. Enterprise
+                </li>
+                <li>
+                    <code>Census_OSSkuName</code> - Verzia OS. (Windows only)
+                </li>
+                <li>
+                    <code>Census_OSInstallTypeName</code> - Typ inštalácie OS, napr. clean
+                </li>
+                <li>
+                    <code>Census_OSInstallLanguageIdentifier</code> - NA
+                </li>
+                <li>
+                    <code>Census_OSUILocaleIdentifier</code> - NA
+                </li>
+                <li>
+                    <code>Census_OSWUAutoUpdateOptionsName</code> - Názov WindowsUpdate auto-update nastavenia.
+                </li>
+                <li>
+                    <code>Census_IsPortableOperatingSystem</code> - Identifikuje, či je OS spustený z USB za pomoci
+                    Windows-To-Go.
+                </li>
+                <li>
+                    <code>Census_GenuineStateName</code> - Názov OSGenuineStateID. 0 = Genuine
+                </li>
+                <li>
+                    <code>Census_ActivationChannel</code> - Retail license key alebo Volume license key.
+                </li>
+                <li>
+                    <code>Census_IsFlightingInternal</code> - NA
+                </li>
+                <li>
+                    <code>Census_IsFlightsDisabled</code> - Indikuje, či je prístroj zapojený do programu Windows
+                    Insider.
+                </li>
+                <li>
+                    <code>Census_FlightRing</code> - Ring Windows Insider.
+                </li>
+                <li>
+                    <code>Census_ThresholdOptIn</code> - NA
+                </li>
+                <li>
+                    <code>Census_FirmwareManufacturerIdentifier</code> - NA
+                </li>
+                <li>
+                    <code>Census_FirmwareVersionIdentifier</code> - NA
+                </li>
+                <li>
+                    <code>Census_IsSecureBootEnabled</code> - Indikuje, či je SecureBoot zapnutý.
+                </li>
+                <li>
+                    <code>Census_IsWIMBootEnabled</code> - NA
+                </li>
+                <li>
+                    <code>Census_IsVirtualDevice</code> - Určuje, či je OS spustený vo virtuálnom stroji.
+                </li>
+                <li>
+                    <code>Census_IsTouchEnabled</code> - Určuje, či zariadenie podporuje dotyk.
+                </li>
+                <li>
+                    <code>Census_IsPenCapable</code> - Určuje, či zariadenie podporuje vstup perom.
+                </li>
+                <li>
+                    <code>Census_IsAlwaysOnAlwaysConnectedCapable</code> - Určuje, či batéria zariadenia
+                    podporuje AlwaysOnAlwaysConnected.
+                </li>
+                <li>
+                    <code>Wdft_IsGamer</code> - Identifikuje, či je zariadenie určené
+                    pre hráčov na základe hardvérovej konfigurácie.
+                </li>
+                <li>
+                    <code>Wdft_RegionIdentifier</code> - NA
+                </li>
+            </ul>
+            </p>
+        </section>
+        <section id="exploratory-analysis">
+            <h2>Exploratívna analýza</h2>
+            <p>
+                Dátová sada obsahuje <strong>8921483</strong> záznamov. Null hodnoty
+                sú distribuované následovne:
+            </p>
+            <h3>Null stĺpce</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ProductName</th>
+                            <th>EngineVersion</th>
+                            <th>AppVersion</th>
+                            <th>AvSigVersion</th>
+                            <th>IsBeta</th>
+                            <th>RtpStateBitfield</th>
+                            <th>IsSxsPassiveMode</th>
+                            <th>DefaultBrowsersIdentifier</th>
+                            <th>AVProductStatesIdentifier</th>
+                            <th>AVProductsInstalled</th>
+                            <th>AVProductsEnabled</th>
+                            <th>HasTpm</th>
+                            <th>CountryIdentifier</th>
+                            <th>CityIdentifier</th>
+                            <th>OrganizationIdentifier</th>
+                            <th>GeoNameIdentifier</th>
+                            <th>LocaleEnglishNameIdentifier</th>
+                            <th>Platform</th>
+                            <th>Processor</th>
+                            <th>OsVer</th>
+                            <th>OsBuild</th>
+                            <th>OsSuite</th>
+                            <th>OsPlatformSubRelease</th>
+                            <th>OsBuildLab</th>
+                            <th>SkuEdition</th>
+                            <th>IsProtected</th>
+                            <th>AutoSampleOptIn</th>
+                            <th>PuaMode</th>
+                            <th>SMode</th>
+                            <th>IeVerIdentifier</th>
+                            <th>SmartScreen</th>
+                            <th>Firewall</th>
+                            <th>UacLuaenable</th>
+                            <th>Census_MDC2FormFactor</th>
+                            <th>Census_DeviceFamily</th>
+                            <th>Census_OEMNameIdentifier</th>
+                            <th>Census_OEMModelIdentifier</th>
+                            <th>Census_ProcessorCoreCount</th>
+                            <th>Census_ProcessorManufacturerIdentifier</th>
+                            <th>Census_ProcessorModelIdentifier</th>
+                            <th>Census_ProcessorClass</th>
+                            <th>Census_PrimaryDiskTotalCapacity</th>
+                            <th>Census_PrimaryDiskTypeName</th>
+                            <th>Census_SystemVolumeTotalCapacity</th>
+                            <th>Census_HasOpticalDiskDrive</th>
+                            <th>Census_TotalPhysicalRAM</th>
+                            <th>Census_ChassisTypeName</th>
+                            <th>Census_InternalPrimaryDiagonalDisplaySizeInInches</th>
+                            <th>Census_InternalPrimaryDisplayResolutionHorizontal</th>
+                            <th>Census_InternalPrimaryDisplayResolutionVertical</th>
+                            <th>Census_PowerPlatformRoleName</th>
+                            <th>Census_InternalBatteryType</th>
+                            <th>Census_InternalBatteryNumberOfCharges</th>
+                            <th>Census_OSVersion</th>
+                            <th>Census_OSArchitecture</th>
+                            <th>Census_OSBranch</th>
+                            <th>Census_OSBuildNumber</th>
+                            <th>Census_OSBuildRevision</th>
+                            <th>Census_OSEdition</th>
+                            <th>Census_OSSkuName</th>
+                            <th>Census_OSInstallTypeName</th>
+                            <th>Census_OSInstallLanguageIdentifier</th>
+                            <th>Census_OSUILocaleIdentifier</th>
+                            <th>Census_OSWUAutoUpdateOptionsName</th>
+                            <th>Census_IsPortableOperatingSystem</th>
+                            <th>Census_GenuineStateName</th>
+                            <th>Census_ActivationChannel</th>
+                            <th>Census_IsFlightingInternal</th>
+                            <th>Census_IsFlightsDisabled</th>
+                            <th>Census_FlightRing</th>
+                            <th>Census_ThresholdOptIn</th>
+                            <th>Census_FirmwareManufacturerIdentifier</th>
+                            <th>Census_FirmwareVersionIdentifier</th>
+                            <th>Census_IsSecureBootEnabled</th>
+                            <th>Census_IsWIMBootEnabled</th>
+                            <th>Census_IsVirtualDevice</th>
+                            <th>Census_IsTouchEnabled</th>
+                            <th>Census_IsPenCapable</th>
+                            <th>Census_IsAlwaysOnAlwaysConnectedCapable</th>
+                            <th>Wdft_IsGamer</th>
+                            <th>Wdft_RegionIdentifier</th>
+                            <th>HasDetections</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>32318</td>
+                            <td>0</td>
+                            <td>8488045</td>
+                            <td>36221</td>
+                            <td>36221</td>
+                            <td>36221</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>325409</td>
+                            <td>2751518</td>
+                            <td>213</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>21</td>
+                            <td>0</td>
+                            <td>36044</td>
+                            <td>0</td>
+                            <td>8919174</td>
+                            <td>537759</td>
+                            <td>58894</td>
+                            <td>3177011</td>
+                            <td>91350</td>
+                            <td>10838</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>95478</td>
+                            <td>102233</td>
+                            <td>41306</td>
+                            <td>41313</td>
+                            <td>41343</td>
+                            <td>8884852</td>
+                            <td>53016</td>
+                            <td>12844</td>
+                            <td>53002</td>
+                            <td>0</td>
+                            <td>80533</td>
+                            <td>623</td>
+                            <td>47134</td>
+                            <td>46986</td>
+                            <td>46986</td>
+                            <td>55</td>
+                            <td>6338429</td>
+                            <td>268755</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>60084</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>7408759</td>
+                            <td>160523</td>
+                            <td>0</td>
+                            <td>5667325</td>
+                            <td>183257</td>
+                            <td>160133</td>
+                            <td>0</td>
+                            <td>5659703</td>
+                            <td>15953</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>71343</td>
+                            <td>303451</td>
+                            <td>303451</td>
+                            <td>0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <img src="images/null_values.png" />
+            </div>
+            <h3>Nenulové null stĺpce</h3>
+            <div class="table-container">
+                <table class="table table-bordered table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th>RtpStateBitfield</th>
+                            <th>DefaultBrowsersIdentifier</th>
+                            <th>AVProductStatesIdentifier</th>
+                            <th>AVProductsInstalled</th>
+                            <th>AVProductsEnabled</th>
+                            <th>CityIdentifier</th>
+                            <th>OrganizationIdentifier</th>
+                            <th>GeoNameIdentifier</th>
+                            <th>OsBuildLab</th>
+                            <th>IsProtected</th>
+                            <th>PuaMode</th>
+                            <th>SMode</th>
+                            <th>IeVerIdentifier</th>
+                            <th>SmartScreen</th>
+                            <th>Firewall</th>
+                            <th>UacLuaenable</th>
+                            <th>Census_OEMNameIdentifier</th>
+                            <th>Census_OEMModelIdentifier</th>
+                            <th>Census_ProcessorCoreCount</th>
+                            <th>Census_ProcessorManufacturerIdentifier</th>
+                            <th>Census_ProcessorModelIdentifier</th>
+                            <th>Census_ProcessorClass</th>
+                            <th>Census_PrimaryDiskTotalCapacity</th>
+                            <th>Census_PrimaryDiskTypeName</th>
+                            <th>Census_SystemVolumeTotalCapacity</th>
+                            <th>Census_TotalPhysicalRAM</th>
+                            <th>Census_ChassisTypeName</th>
+                            <th>Census_InternalPrimaryDiagonalDisplaySizeInInches</th>
+                            <th>Census_InternalPrimaryDisplayResolutionHorizontal</th>
+                            <th>Census_InternalPrimaryDisplayResolutionVertical</th>
+                            <th>Census_PowerPlatformRoleName</th>
+                            <th>Census_InternalBatteryType</th>
+                            <th>Census_InternalBatteryNumberOfCharges</th>
+                            <th>Census_OSInstallLanguageIdentifier</th>
+                            <th>Census_IsFlightingInternal</th>
+                            <th>Census_IsFlightsDisabled</th>
+                            <th>Census_ThresholdOptIn</th>
+                            <th>Census_FirmwareManufacturerIdentifier</th>
+                            <th>Census_FirmwareVersionIdentifier</th>
+                            <th>Census_IsWIMBootEnabled</th>
+                            <th>Census_IsVirtualDevice</th>
+                            <th>Census_IsAlwaysOnAlwaysConnectedCapable</th>
+                            <th>Wdft_IsGamer</th>
+                            <th>Wdft_RegionIdentifier</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr align="right">
+                            <td>32318.0</td>
+                            <td>8488045.0</td>
+                            <td>36221.0</td>
+                            <td>36221.0</td>
+                            <td>36221.0</td>
+                            <td>325409.0</td>
+                            <td>2751518.0</td>
+                            <td>213.0</td>
+                            <td>21.0</td>
+                            <td>36044.0</td>
+                            <td>8919174.0</td>
+                            <td>537759.0</td>
+                            <td>58894.0</td>
+                            <td>3177011.0</td>
+                            <td>91350.0</td>
+                            <td>10838.0</td>
+                            <td>95478.0</td>
+                            <td>102233.0</td>
+                            <td>41306.0</td>
+                            <td>41313.0</td>
+                            <td>41343.0</td>
+                            <td>8884852.0</td>
+                            <td>53016.0</td>
+                            <td>12844.0</td>
+                            <td>53002.0</td>
+                            <td>80533.0</td>
+                            <td>623.0</td>
+                            <td>47134.0</td>
+                            <td>46986.0</td>
+                            <td>46986.0</td>
+                            <td>55.0</td>
+                            <td>6338429.0</td>
+                            <td>268755.0</td>
+                            <td>60084.0</td>
+                            <td>7408759.0</td>
+                            <td>160523.0</td>
+                            <td>5667325.0</td>
+                            <td>183257.0</td>
+                            <td>160133.0</td>
+                            <td>5659703.0</td>
+                            <td>15953.0</td>
+                            <td>71343.0</td>
+                            <td>303451.0</td>
+                            <td>303451.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <img src="images/null_values_non_zero.png" />
+            </div>
+            <h3>Korelačná matica</h3>
+            <div>
+                <img src="images/corr.png" />
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>
