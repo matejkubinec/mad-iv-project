@@ -100,7 +100,7 @@ null_fig.tight_layout()
 null_ax = null_fig.add_subplot(111)
 null_x = null_df.columns.tolist()
 null_y = null_df.values[0].tolist()
-sns.barplot(ax = null_ax,x=null_x, y=null_y, palette=cmap)
+sns.barplot(ax=null_ax, x=null_x, y=null_y, palette=cmap)
 null_ax.set_xticklabels(null_ax.get_xticklabels(), rotation=90)
 null_fig.savefig('images/null_values.png')
 
@@ -110,6 +110,74 @@ null_non_zero_fig.tight_layout()
 null_non_zero_ax = null_non_zero_fig.add_subplot(111)
 null_non_zero_x = null_non_zero_df.columns
 null_non_zero_y = null_non_zero_df.values[0]
-sns.barplot(ax = null_non_zero_ax, x=null_non_zero_x, y=null_non_zero_y, palette=cmap)
-null_non_zero_ax.set_xticklabels(null_non_zero_ax.get_xticklabels(), rotation=90)
+sns.barplot(ax=null_non_zero_ax, x=null_non_zero_x,
+            y=null_non_zero_y, palette=cmap)
+null_non_zero_ax.set_xticklabels(
+    null_non_zero_ax.get_xticklabels(), rotation=90)
 null_non_zero_fig.savefig('images/null_values_non_zero.png')
+
+corr_sub_df = train_data[[
+    'OsVer',
+    'OsBuild',
+    'IeVerIdentifier',
+    'Platform',
+    'OsPlatformSubRelease',
+    'Census_OSBuildNumber',
+    'Census_OSEdition',
+    'Census_OSSkuName',
+    'Census_OSArchitecture',
+    'SkuEdition',
+    'Census_ProcessorModelIdentifier',
+    'Census_ProcessorManufacturerIdentifier',
+    'Census_OSInstallLanguageIdentifier',
+    'Census_OSUILocaleIdentifier',
+]].corr()
+
+# Plot correlation matrix
+corr_sub_fig = Figure(figsize=(20, 20))
+corr_sub_fig.tight_layout()
+corr_sub_ax = corr_sub_fig.add_subplot(111)
+sns.heatmap(
+    corr_sub_df,
+    ax=corr_sub_ax,
+    annot=True,
+    square=True,
+    cmap=cmap,
+)
+corr_sub_ax.set_yticklabels(corr_sub_ax.get_yticklabels(), rotation=0)
+corr_sub_ax.set_xticklabels(corr_sub_ax.get_xticklabels(), rotation=90)
+corr_sub_fig.savefig('images/corr_sub.png')
+
+cols_to_drop = [
+    'OsVer',
+    'OsBuild',
+    'Platform',
+    'Census_OSSkuName',
+    'Census_ProcessorModelIdentifier',
+    'Census_OSInstallLanguageIdentifier',
+    'DefaultBrowsersIdentifier',
+    'OrganizationIdentifier',
+    'PuaMode',
+    'ProcessorClass',
+    'Census_PowerPlatformRoleName',
+    'Census_InternalBatteryType',
+    'Census_TresholdOptIn',
+    'Census_WIMBootEnabled',
+]
+
+corr_mat = None
+train_df = train_data.drop(columns=cols_to_drop)
+train_data = None
+
+corr_fig = Figure(figsize=(75, 50))
+corr_fig.tight_layout()
+corr_ax = corr_fig.add_subplot(111)
+sns.heatmap(
+    train_df,
+    ax=corr_ax,
+    annot=True,
+    cmap=cmap,
+)
+corr_ax.set_yticklabels(corr_ax.get_yticklabels(), rotation=0)
+corr_ax.set_xticklabels(corr_ax.get_xticklabels(), rotation=90)
+corr_fig.savefig('images/cleaned_corr.png')

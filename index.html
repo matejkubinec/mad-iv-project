@@ -108,6 +108,16 @@
         img {
             width: 100%;
         }
+
+        .image-container {
+            margin: 0.1em;
+            border: 1px solid rgb(243, 242, 241, 0.5);
+            box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, .132), 0 0.3px 0.9px 0 rgba(0, 0, 0, .108);
+        }
+
+        div {
+            margin: 0.5em 0;
+        }
     </style>
 </head>
 
@@ -234,11 +244,6 @@
                 </li>
                 <li>
                     <code>SkuEdition</code>
-                    <!-- TODO: specify product type The goal of this feature is to use the Product Type defined in the MSDN to map
-                to a 'SKU-Edition' name that is useful in population reporting. The valid Product Type are defined in
-                %sdxroot%\data\windowseditions.xml. This API has been used since Vista and Server 2008, so there are
-                many Product Types that do not apply to Windows 10. The 'SKU-Edition' is a string value that is in one
-                of three classes of results. The design must hand each class. -->
                 </li>
                 <li>
                     <code>IsProtected</code> - Vypočítaný field zo Spynet Report's
@@ -618,7 +623,7 @@
                     </tbody>
                 </table>
             </div>
-            <div>
+            <div class="image-container">
                 <img src="images/null_values.png" />
             </div>
             <h3>Nenulové null stĺpce</h3>
@@ -722,13 +727,64 @@
                     </tbody>
                 </table>
             </div>
-            <div>
+            <div class="image-container">
                 <img src="images/null_values_non_zero.png" />
             </div>
+            <p>
+                Na grafoch môžeme vidieť, že máme atribúty, kde nám chýba veľký
+                počet hodnôt:
+            </p>
+            <ul>
+                <li>DefaultBrowsersIdentifier</li>
+                <li>OrganizationIdentifier</li>
+                <li>PuaMode</li>
+                <li>ProcessorClass</li>
+                <li>Census_PowerPlatformRoleName</li>
+                <li>Census_InternalBatteryType</li>
+                <li>Census_TresholdOptIn</li>
+                <li>Census_WIMBootEnabled</li>
+            </ul>
+            <p>
+                Tieto atribúty pri ďalším spracovaní odstránime.
+            </p>
             <h3>Korelačná matica</h3>
-            <div>
+            <div class="image-container">
                 <img src="images/corr.png" />
             </div>
+            <p>
+                Z korelačnej matice vidíme, že niektoré atribúty spolu korelujú.
+                Vytvoril som si mensiu maticu s vybranými atribútmi.
+            </p>
+            <ul>
+                <li>OsVer</li>
+                <li>OsBuild</li>
+                <li>IeVerIdentifier</li>
+                <li>Platform</li>
+                <li>OsPlatformSubRelease</li>
+                <li>Census_OSBuildNumber</li>
+                <li>Census_OSEdition</li>
+                <li>Census_OSSkuName</li>
+                <li>Census_OSArchitecture</li>
+                <li>SkuEdition</li>
+                <li>Census_ProcessorModelIdentifier</li>
+                <li>Census_ProcessorManufacturerIdentifier</li>
+                <li>Census_OSInstallLanguageIdentifier</li>
+                <li>Census_OSUILocaleIdentifier</li>
+            </ul>
+            <div class="image-container">
+                <img src="images/corr_sub.png" />
+            </div>
+            <p>
+                Následne som sa rozhodol odstrániť následovné atribúty:
+                <ul>
+                    <li>OsVer</li>
+                    <li>OsBuild</li>
+                    <li>Platform</li>
+                    <li>Census_OSSkuName</li>
+                    <li>Census_ProcessorModelIdentifier</li>
+                    <li>Census_OSInstallLanguageIdentifier</li>
+                </ul>
+            </p>
         </section>
     </div>
 </body>
