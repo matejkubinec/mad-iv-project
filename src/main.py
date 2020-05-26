@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
 import seaborn as sns
+import numpy as np
 import os
 import tensorflow as tf
 import pandas as pd
+from matplotlib.figure import Figure
 from src.load_data import load_data
 
 # Just disables the warning, doesn't enable AVX/FMA
@@ -306,22 +307,31 @@ for i, col_name in enumerate(cat_cols):
 
 cat_fig.savefig('images/distributions-bars.png')
 
+percentages_df = pd.DataFrame()
 
-#
-# Categorical
-#
-top5_cols = [
-    'Census_OSBranch',
-    'Census_OSEdition',
-    'Census_OSSkuName',
-    'Census_ChassisTypeName',
-    'EngineVersion',
-    'AppVersion',
-    'AvSigVersion',
-    'Census_OSVersion',
-]
+for col_name in train_df.columns:
+    value_counts = (train_df[col_name].value_counts(normalize=True) * 100).round(1)
+    percentages = value_counts.values[:3]
+    
+    print(percentages_df)
+    print(percentages)
 
-for col_name in top5_cols:
-    counts = (train_df[col_name].value_counts(normalize=True) * 100).round(1)
+    while len(percentages) < 3:
+        percentages = np.append(percentages, 0.0)
 
-    counts[:10].to_csv(f'results/counts/{col_name}.csv')
+    while len(percentages) > 3:
+        percentages = percentages[:-1]
+
+    percentages_df[col_name] = 0.0
+    percentages_df[col_name] = percentages
+
+percentages_df.to_csv('results/percentages.csv')
+
+tmp_df = pd.DataFrame()
+for i, col_name in enumerate(train_df.columns):
+    tmp_df[col_name] = percentages_df[col_name]
+
+    if (i + 1) % 10 == 0 or i == len(train_df.columns) - 1:
+        tmp_df.to_html(f'tmp/percentages-{i}.html', index=False)
+        tmp_df = pd.DataFrame()
+
