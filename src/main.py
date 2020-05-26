@@ -4,6 +4,7 @@ import seaborn as sns
 import os
 import tensorflow as tf
 import pandas as pd
+from src.load_data import load_data
 
 # Just disables the warning, doesn't enable AVX/FMA
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -195,14 +196,132 @@ dist_fig = Figure(figsize=(50, 50))
 dist_fig.tight_layout()
 dist_axs = dist_fig.subplots(9, 8)
 
+dist_axs[8, 7].axis("off")
+dist_axs[8, 6].axis("off")
+dist_axs[8, 5].axis("off")
+dist_axs[8, 4].axis("off")
+
 for i, col_name in enumerate(column_names):
     r = int(i / 8)
     c = int(i % 8)
-
     ax = dist_axs[r, c]
-
     hist_kws = {'color': '#a4d4bc'}
     kde_kws = {'shade': True, 'color': '#0b1e56'}
     sns.distplot(train_df[col_name], ax=ax, kde_kws=kde_kws, hist_kws=hist_kws)
 
 dist_fig.savefig('images/distributions.png')
+
+#
+# Boxplots
+#
+column_names = train_df.columns.tolist()
+
+box_fig = Figure(figsize=(50, 50))
+box_fig.tight_layout()
+box_axs = box_fig.subplots(9, 8)
+
+box_axs[8, 7].axis("off")
+box_axs[8, 6].axis("off")
+box_axs[8, 5].axis("off")
+box_axs[8, 4].axis("off")
+
+for i, col_name in enumerate(column_names):
+    r = int(i / 8)
+    c = int(i % 8)
+    ax = box_axs[r, c]
+    sns.boxplot(train_df[col_name], ax=ax, palette=cmap)
+
+box_fig.savefig('images/boxplots.png')
+
+#
+# Barplots
+#
+train_df = load_data()
+column_names = train_df.columns.tolist()[:1]
+
+bar_fig = Figure(figsize=(50, 50))
+bar_fig.tight_layout()
+bar_axs = bar_fig.subplots(9, 8)
+
+bar_axs[8, 7].axis("off")
+bar_axs[8, 6].axis("off")
+bar_axs[8, 5].axis("off")
+bar_axs[8, 4].axis("off")
+
+for i, col_name in enumerate(column_names):
+    r = int(i / 8)
+    c = int(i % 8)
+    ax = bar_axs[r, c]
+    data = train_df[col_name].value_counts()
+    print(data)
+    sns.catplot(data, ax=ax, palette=cmap)
+
+bar_fig.savefig('images/distributions-cat.png')
+
+
+data = train_df[column_names[0]].value_counts()
+data_df = pd.DataFrame({'column': data.index, 'count': data.values})
+sns.catplot(x=column_names[0], kind='count',
+            data=train_df, ax=ax, palette=cmap)
+plt.show()
+
+#
+# Categorical - distributions
+#
+cat_cols = [
+    'ProductName',
+    'Platform',
+    'Processor',
+    'OsPlatformSubRelease',
+    'Census_DeviceFamily',
+    'SkuEdition',
+    'Census_PrimaryDiskTypeName',
+    'Census_OSArchitecture',
+    'Census_OSSkuName',
+    'Census_PowerPlatformRoleName',
+    'Census_MDC2FormFactor',
+    'SmartScreen'
+]
+
+cat_fig = Figure(figsize=(50, 50))
+cat_fig.tight_layout()
+cat_nrows = 6
+cat_ncols = 2
+cat_axs = cat_fig.subplots(cat_nrows, cat_ncols)
+
+for i, col_name in enumerate(cat_cols):
+    r = int(i / cat_ncols)
+    c = int(i % cat_ncols)
+    ax = cat_axs[r, c]
+    sns.countplot(
+        ax=ax,
+        x=col_name,
+        data=train_df,
+        palette='YlGnBu',
+    )
+
+    if col_name == 'Census_OSSkuName':
+        labels = ax.get_xticklabels()
+        ax.set_xticklabels(labels, rotation=45, fontsize='xx-small')
+
+cat_fig.savefig('images/distributions-bars.png')
+
+
+#
+# Categorical
+#
+top5_cols = [
+    'Census_OSBranch',
+    'Census_OSEdition',
+    'Census_OSSkuName',
+    'Census_ChassisTypeName',
+    'EngineVersion',
+    'AppVersion',
+    'AvSigVersion',
+    'Census_OSVersion',
+]
+
+for col_name in top5_cols:
+    counts = (train_df[col_name].value_counts(normalize=True) * 100).round(1)
+
+    counts[:10].to_csv(f'results/counts/{col_name}.csv')
