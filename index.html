@@ -799,7 +799,9 @@
                 <li>Census_IsWIMBootEnabled</li>
             </ul>
             <p>
-                Tieto atribúty pri ďalším spracovaní odstránime.
+                Tieto atribúty pri ďalším spracovaní odstránime. Čo sa týka
+                ostatných chýbajúcich hodnôt, odstránili sme záznami kde tieto
+                hodnoty chýbali, kedže máme docela veľké množstvo dát.
             </p>
             <h3>Korelačná matica</h3>
             <div class="image-container">
@@ -1371,9 +1373,7 @@
                 Non-trainable params: 0
             </pre>
             <p>
-                S použitím základného modelu, som
-                dosiahol presnosť <strong>0.499</strong>, učenie sa zastavilo
-                na druhej epoche (dĺžka učenia epochy bola <em>642s</em>).
+                S použitím základného modelu, som dosiahol presnosť <strong>0.499</strong>.
                 Ako môžeme vidieť, tento model je príliš jednoduchý aby zachytil
                 všetky aspekty dát.
             </p>
@@ -1402,8 +1402,8 @@
                 _________________________________________________________________
             </pre>
             <p>
-                Test accuracy:  0.502213716506958
-                141s
+                Po zväčšení siete môžeme vidieť len mierne stúpnutie presnosti
+                na <strong>0.502</strong>.
             </p>
             <h3>Dropout</h3>
             <pre>
@@ -1434,7 +1434,8 @@
                 _________________________________________________________________
             </pre>
             <p>
-                Test accuracy:  0.501858115196228, 152s
+                S použitím dropoutu sa presnosť výrazne nezmenila, ostáva na
+                podobnej hodnote.
             </p>
             <h3>Normalizácia</h3>
             <pre>
@@ -1467,7 +1468,9 @@
                 _________________________________________________________________
             </pre>
             <p>
-                Test accuracy:  0.5954393744468689, 5 epoch
+                S použitím normalizácie sa výrazne zvýšila presnosť na 
+                <strong>0.595</strong>, učenie trvalo dlhšie, s použítím early
+                stopping s patience 1 sme sa zastavili na piatej epoche.
             </p>
         </section>
     </div>
