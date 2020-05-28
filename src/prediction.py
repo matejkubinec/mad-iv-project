@@ -9,7 +9,7 @@ import sklearn
 import gc
 from tensorflow.keras import Sequential, activations
 from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Activation, GaussianNoise
-from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping, LearningRateScheduler
 from matplotlib.figure import Figure
 from src.load_data import load_data
 from sklearn.model_selection import train_test_split
@@ -35,7 +35,6 @@ columns_to_convert = [
     'Processor',
     'OsVer',
     'OsPlatformSubRelease',
-    'OsBuildLab',
     'SkuEdition',
     'SmartScreen',
     'Census_MDC2FormFactor',
@@ -70,6 +69,7 @@ columns_to_drop = [
     'HasTpm',
     'Platform',
     'OsVer',
+    'OsBuildLab',
     'AutoSampleOptIn',
     'PuaMode',
     'SMode',
@@ -102,7 +102,7 @@ columns_to_drop = [
 train_df = pd.read_csv('data/train.csv', index_col=0, header=0)
 train_df = train_df.drop(columns=columns_to_drop)
 train_df = train_df.dropna()
-
+ 
 for col in columns_to_convert:
     if col in train_df:
         codes, uniques = pd.factorize(train_df[col])
@@ -121,6 +121,10 @@ x_train, x_test, y_train, y_test = train_test_split(
     random_state=42
 )
 
+del x
+del y
+gc.collect()
+
 x_train, x_valid, y_train, y_valid = train_test_split(
     x_train,
     y_train,
@@ -129,7 +133,7 @@ x_train, x_valid, y_train, y_valid = train_test_split(
 )
 
 model = Sequential([
-    Dense(4, input_dim=51, activation='relu'),
+    Dense(4, input_dim=50, activation='relu'),
     Dense(32, activation=tf.nn.relu),
     Dense(1, activation=tf.nn.softmax),
 ])
@@ -168,10 +172,10 @@ print('Test accuracy: ', test_acc)
 # Vacsi pocet neuronov
 #
 model = Sequential([
-    Dense(64, input_dim=51),
+    Dense(64, input_dim=50),
     Dense(256),
     Activation('relu'),
-    Dense(512),
+    Dense(502),
     Activation('relu'),
     Dense(1),
     Activation('sigmoid'),
@@ -205,12 +209,12 @@ print('Test accuracy: ', test_acc)
 # Dropout
 #
 model = Sequential([
-    Dense(64, input_dim=51),
+    Dense(64, input_dim=50),
     Dense(256),
     Dropout(0.25),
     Activation('relu'),
     Dropout(0.25),
-    Dense(512),
+    Dense(502),
     Activation('relu'),
     Dense(1),
     Activation('sigmoid'),
@@ -244,13 +248,13 @@ print('Test accuracy: ', test_acc)
 # Normalizacia
 #
 model = Sequential([
-    Dense(64, input_dim=51),
+    Dense(64, input_dim=208),
     BatchNormalization(),
     Dense(256),
     Dropout(0.25),
     Activation('relu'),
     Dropout(0.25),
-    Dense(512),
+    Dense(502),
     Activation('relu'),
     Dense(1),
     Activation('sigmoid'),
@@ -263,6 +267,14 @@ model.compile(
 )
 
 model.summary()
+
+early_stopping = EarlyStopping(
+    monitor="val_loss",
+    patience=1,
+    verbose=1,
+    mode="auto",
+    restore_best_weights=True
+)
 
 history = model.fit(
     x_train,
@@ -284,21 +296,25 @@ print('Test accuracy: ', test_acc)
 # Enhanced - Normalizations
 #
 model = Sequential([
-    Dense(64, input_dim=51),
+    Dense(256, input_dim=50),
     BatchNormalization(),
-    Dense(256),
-    Dropout(0.25),
+    Dense(512),
+    # Dropout(0.1),
     BatchNormalization(),
     Activation(activations.relu),
     GaussianNoise(10.0),
     Dense(512),
-    Dropout(0.25),
+    # Dropout(0.1),
+    BatchNormalization(),
+    Activation(activations.relu),
+    Dense(512),
     BatchNormalization(),
     Activation(activations.relu),
     Dense(256),
-    Activation('relu'),
+    BatchNormalization(),
+    Activation(activations.relu),
     Dense(1),
-    Activation('sigmoid'),
+    Activation(activations.sigmoid),
 ])
 
 model.compile(
@@ -309,12 +325,14 @@ model.compile(
 
 model.summary()
 
+annealer = LearningRateScheduler(lambda x: 1e-2 * 0.95 ** x)
+
 early_stopping = EarlyStopping(
     monitor="val_loss",
-    patience=3,
+    patience=5,
     verbose=1,
     mode="auto",
-    restore_best_weights=True
+    restore_best_weights=True,
 )
 
 history = model.fit(
@@ -322,8 +340,8 @@ history = model.fit(
     y_train,
     batch_size=256,
     validation_data=(x_valid, y_valid),
-    epochs=20,
-    callbacks=[early_stopping]
+    epochs=50,
+    callbacks=[early_stopping, annealer],
 )
 
 test_loss, test_acc = model.evaluate(

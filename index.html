@@ -156,6 +156,29 @@
             text-align: center;
         }
 
+        .nunique-tables table {
+            table-layout: fixed;
+        }
+
+        .nunique-tables>* {
+            margin-bottom: 25px;
+        }
+
+        .nunique-tables th {
+            column-width: 10%;
+            width: 10%;
+            min-width: 10%;
+            max-width: 10%;
+        }
+
+        .nunique-tables .dataframe {
+            width: 100%;
+        }
+
+        .nunique-tables td {
+            text-align: center;
+        }
+
         .over-90 {
             background-color: rgba(251, 255, 0, 0.5);
         }
@@ -178,13 +201,18 @@
     <div class="content">
         <h1 id="title">MAD IV - Matej Kubinec - Microsoft Malware Prediction</h1>
         <hr>
+        <p>
+            Odkaz na <a href="https://github.com/matejkubinec/mad-iv-project">github</a>.
+        </p>
         <section>
             <h2>Obsah</h2>
             <p>
             <ul>
                 <li><a href="#overview">Prehľad dátovej sady</a></li>
-                <li><a href="#exploratory-analysis">Exploratívna analýza</a></li>
+                <li><a href="#exploratory-analysis">Exploratívna analýza a predspracovanie</a></li>
                 <li><a href="#sec-prediction">Predikcia</a></li>
+                <li><a href="#sec-prediction-lgbm">Predikcia - LightGBM</a></li>
+                <li><a href="#sec-results">Zhodnotenie</a></li>
             </ul>
             </p>
         </section>
@@ -1434,7 +1462,7 @@
                 _________________________________________________________________
             </pre>
             <p>
-                S použitím dropoutu sa presnosť výrazne nezmenila, ostáva na
+                S použitím dropoutu (0,25) sa presnosť výrazne nezmenila, ostáva na
                 podobnej hodnote.
             </p>
             <h3>Normalizácia</h3>
@@ -1468,9 +1496,316 @@
                 _________________________________________________________________
             </pre>
             <p>
-                S použitím normalizácie sa výrazne zvýšila presnosť na 
+                S použitím normalizácie sa výrazne zvýšila presnosť na
                 <strong>0.595</strong>, učenie trvalo dlhšie, s použítím early
                 stopping s patience 1 sme sa zastavili na piatej epoche.
+            </p>
+            <h3></h3>
+            <pre>
+                _________________________________________________________________
+                Layer (type)                 Output Shape              Param #
+                =================================================================
+                dense_21 (Dense)             (None, 64)                3264
+                _________________________________________________________________
+                batch_normalization_9 (Batch (None, 64)                256
+                _________________________________________________________________
+                dense_22 (Dense)             (None, 256)               16640
+                _________________________________________________________________
+                dropout_6 (Dropout)          (None, 256)               0
+                _________________________________________________________________
+                batch_normalization_10 (Batc (None, 256)               1024
+                _________________________________________________________________
+                activation_18 (Activation)   (None, 256)               0
+                _________________________________________________________________
+                gaussian_noise_3 (GaussianNo (None, 256)               0
+                _________________________________________________________________
+                dense_23 (Dense)             (None, 502)               129014    
+                _________________________________________________________________
+                dropout_7 (Dropout)          (None, 502)               0
+                _________________________________________________________________
+                batch_normalization_11 (Batc (None, 502)               2008
+                _________________________________________________________________
+                activation_19 (Activation)   (None, 502)               0
+                _________________________________________________________________
+                dense_24 (Dense)             (None, 256)               128768
+                _________________________________________________________________
+                activation_20 (Activation)   (None, 256)               0
+                _________________________________________________________________
+                dense_25 (Dense)             (None, 1)                 257
+                _________________________________________________________________
+                activation_21 (Activation)   (None, 1)                 0
+                =================================================================
+                Total params: 281,231
+                Trainable params: 279,587
+                Non-trainable params: 1,644
+                _________________________________________________________________
+            </pre>
+            <p>
+                Pridaním ďalších normalizácií a šumu som mierne zvýšil presnosť
+                na <strong>0.609</strong>.
+            </p>
+            <h3>Odstránenie dropoutu</h3>
+            <pre>
+                _________________________________________________________________
+                Layer (type)                 Output Shape              Param #
+                =================================================================
+                dense_20 (Dense)             (None, 256)               13056
+                _________________________________________________________________
+                batch_normalization_12 (Batc (None, 256)               1024
+                _________________________________________________________________
+                dense_21 (Dense)             (None, 512)               131584
+                _________________________________________________________________
+                batch_normalization_13 (Batc (None, 512)               2048
+                _________________________________________________________________
+                activation_16 (Activation)   (None, 512)               0
+                _________________________________________________________________
+                gaussian_noise_4 (GaussianNo (None, 512)               0
+                _________________________________________________________________
+                dense_22 (Dense)             (None, 512)               262656
+                _________________________________________________________________
+                batch_normalization_14 (Batc (None, 512)               2048
+                _________________________________________________________________
+                activation_17 (Activation)   (None, 512)               0
+                _________________________________________________________________
+                dense_23 (Dense)             (None, 256)               131328
+                _________________________________________________________________
+                activation_18 (Activation)   (None, 256)               0
+                _________________________________________________________________
+                dense_24 (Dense)             (None, 1)                 257
+                _________________________________________________________________
+                activation_19 (Activation)   (None, 1)                 0
+                =================================================================
+                Total params: 544,001
+                Trainable params: 541,441
+                Non-trainable params: 2,560
+                _________________________________________________________________
+            </pre>
+            <p>
+                Pri zvýšení počtu neurónov a odstránení dropout vrstiev sa mi
+                podarilo zvýšiť presnosť na <strong>0.613</strong>.
+            </p>
+            <pre>
+                _________________________________________________________________
+                Layer (type)                 Output Shape              Param #
+                =================================================================
+                dense_25 (Dense)             (None, 256)               13056
+                _________________________________________________________________
+                batch_normalization_15 (Batc (None, 256)               1024
+                _________________________________________________________________
+                dense_26 (Dense)             (None, 512)               131584
+                _________________________________________________________________
+                batch_normalization_16 (Batc (None, 512)               2048
+                _________________________________________________________________
+                activation_20 (Activation)   (None, 512)               0
+                _________________________________________________________________
+                gaussian_noise_5 (GaussianNo (None, 512)               0
+                _________________________________________________________________
+                dense_27 (Dense)             (None, 512)               262656
+                _________________________________________________________________
+                batch_normalization_17 (Batc (None, 512)               2048
+                _________________________________________________________________
+                activation_21 (Activation)   (None, 512)               0
+                _________________________________________________________________
+                dense_28 (Dense)             (None, 512)               262656
+                _________________________________________________________________
+                batch_normalization_18 (Batc (None, 512)               2048
+                _________________________________________________________________
+                activation_22 (Activation)   (None, 512)               0
+                _________________________________________________________________
+                dense_29 (Dense)             (None, 256)               131328
+                _________________________________________________________________
+                batch_normalization_19 (Batc (None, 256)               1024
+                _________________________________________________________________
+                activation_23 (Activation)   (None, 256)               0
+                _________________________________________________________________
+                dense_30 (Dense)             (None, 1)                 257
+                _________________________________________________________________
+                activation_24 (Activation)   (None, 1)                 0
+                =================================================================
+                Total params: 809,729
+                Trainable params: 805,633
+                Non-trainable params: 4,096
+                _________________________________________________________________
+            </pre>
+            <p>
+                Ďalšie zvýšenie neurónov viedlo k zvýšeniu presnosti na <strong>0.616</strong>.
+            </p>
+        </section>
+        <section id="sec-prediction-lgbm">
+            <h2>LightGBM</h2>
+            <p>
+                <a href="https://lightgbm.readthedocs.io/">LightGBM</a> je gradientný boostovací framework, ktorý používa
+                algoritmy založené na stromoch. Je navrhnutý na to aby bol
+                distribuovateľný a efektívny.
+            </p>
+            <p>
+                Rozhodol som sa ho použiť mal dobré výsledky na Kaggle-u a ešte
+                som s ním doposiaľ nepracoval.
+            </p>
+            <h3>Základný model</h3>
+            <pre>
+                {
+                    'num_leaves': 31,
+                    'objective': 'binary',
+                    'metric': 'auc',
+                }
+
+                num_round = 10
+            </pre>
+            <p>
+                Základný model dosiahol presnosť <strong>0.653</strong>, čím
+                prevýšil presnosť neurónových sietí.
+            </p>
+            <h3>Rozšírenie</h3>
+            <pre>
+                param = {
+                    'num_leaves': 91,
+                    'objective': 'binary',
+                    'metric': 'auc',
+                    'boosting': 'gbdt',
+                }
+                
+                num_round = 50
+            </pre>
+            <p>
+                Zväčšením počtu listov, použitím GBDT pre boosting a zväčšením
+                počtu kôol sme dosiahli presnosť <strong>0.670</strong>.
+            </p>
+            <pre>
+                param = {
+                    'num_leaves': 91,
+                    'min_data_in_keaf': 30
+                    'objective': 'binary',
+                    'metric': 'auc',
+                    'boosting': 'gbdt',
+                }
+                
+                num_round = 100
+            </pre>
+            <p>
+                Ďalším zväčšením počtu kôl a určením minimálneho počtu dát v listoch
+                sme dosiahli presnosť <strong>0.675</strong>, čo je len mierne
+                zlepšenie oproti predošlému modelu.
+            </p>
+        </section>
+        <section>
+            <h2>One-Hot Encoding</h2>
+            <p>
+                Pôvodne som kategoriálne dáta faktorizoval, následne som skusil
+                kategoriálne premenné predspracovať iným spôsobom. Premenné,
+                ktoré sú verzie aplikácie, alebo jadra antivírusu som zmenil na
+                ich numerickú reprezentáciu odstránením bodky.
+            </p>
+            <p>
+                Ostatné kategoriálne atribúty majú takéto rozloženie unikátnych hodnôt:
+            </p>
+            <div class="nunique-tables">
+                <div class="row">
+                    <table border="1" class="dataframe">
+                        <thead>
+                            <tr style="text-align: right;">
+                                <th>SmartScreen</th>
+                                <th>Census_OSArchitecture</th>
+                                <th>Census_MDC2FormFactor</th>
+                                <th>Census_OSInstallTypeName</th>
+                                <th>Census_OSWUAutoUpdateOptionsName</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>21</td>
+                                <td>3</td>
+                                <td>11</td>
+                                <td>9</td>
+                                <td>5</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <table border="1" class="dataframe">
+                        <thead>
+                            <tr style="text-align: right;">
+                                <th>Processor</th>
+                                <th>OsPlatformSubRelease</th>
+                                <th>Census_GenuineStateName</th>
+                                <th>Census_ActivationChannel</th>
+                                <th>Census_ChassisTypeName</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>3</td>
+                                <td>9</td>
+                                <td>4</td>
+                                <td>5</td>
+                                <td>41</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <table border="1" class="dataframe">
+                        <thead>
+                            <tr style="text-align: right;">
+                                <th>Census_OSBranch</th>
+                                <th>Census_OSEdition</th>
+                                <th>SkuEdition</th>
+                                <th>Census_FlightRing</th>
+                                <th>Census_PrimaryDiskTypeName</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>16</td>
+                                <td>26</td>
+                                <td>7</td>
+                                <td>9</td>
+                                <td>4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <p>
+                Môžeme vidieť, že vačšina atribútov má len malý počet unikátnych
+                hodnôt, ale máme aj atribúty, ktoré majú vačší počet. Následne
+                som tieto atribúty skonvertoval metódou <em><a
+                        href="https://www.sciencedirect.com/topics/computer-science/one-hot-encoding">one hot
+                        encoding</a></em>.
+            </p>
+            <h3>Výsledky s OHE</h3>
+            <p>
+                Použil som takto predspracované dáta na modely, ktoré som používal
+                v predošlej sekcii. Výsledky však mali nižšiu presnosť predikcie
+                a tak ich výsledky sem neuvádzam.
+            </p>
+        </section>
+        <section id="sec-results">
+            <h2>Zhodnotenie</h2>
+            <p>
+                Dáta obsahujú veľký počet kategoriálnych atribútov, čo sťažilo
+                prácu s dátami, bolo nutné veľa z týchto atribútov skonvertovať.
+                Ďalším problémom pri spracovaní bolo veľa chýbajúcich hodnôt
+                pri niektorých atribútoch, tie som nakoniec odstránil. Veľky 
+                počet atribútov mal velmi skreslené hodnoty, kde tri hodnoty 
+                mohli pokrývať cez 90% všetkých hodnôt. Pri niektorých dokonca
+                jedna hodnota pokrývala 90% dát, tie som sa rozhodol odstrániť.
+            </p>
+            <p>
+                Aj pri komplexnejších neurónových sieťach sa nedarilo pri dátach
+                dosahovať vyššej presnosti, najvyššia presnosť, ktorej sa mi podarilo
+                dosiahnuť je <strong>0.616</strong>. Dropout nemal veľký význam,
+                keďže s ním aj bez neho a aj pri rôznych hodnotách nevznikali zmeny
+                pri presnosti. Najväčším rozdiel v presnosti sa dosiahlo použitím
+                normalizácie, čím sa výrazne presnosť zvýšila. Pri väčšom počte
+                neurónov trvalo učenie dlhšie a prenosť sa zvyšovala len mierne
+                pri vyššom počte epoch.
+            </p>
+            <p>
+                Pri LightGBM som dosiahol presnosti <strong>0.675</strong>, čím
+                som sa priblížil k lepším výsledok z kompetície v kagglu a ľahko
+                prekonal môj najlepší výsledok z neurónovej siete.
             </p>
         </section>
     </div>

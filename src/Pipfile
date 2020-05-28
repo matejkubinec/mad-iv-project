@@ -15,6 +15,10 @@ scikit-learn = "*"
 pandas = "*"
 seaborn = "*"
 keras = "*"
+setuptools = "*"
+wheel = "*"
+scipy = "*"
+lightgbm = "*"
 
 [requires]
 python_version = "3.7"

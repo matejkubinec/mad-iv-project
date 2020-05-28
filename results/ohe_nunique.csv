@@ -1,0 +1,42 @@
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>SmartScreen</th>
+      <th>Census_OSArchitecture</th>
+      <th>Census_MDC2FormFactor</th>
+      <th>Census_OSInstallTypeName</th>
+      <th>Census_OSWUAutoUpdateOptionsName</th>
+      <th>Processor</th>
+      <th>OsPlatformSubRelease</th>
+      <th>Census_GenuineStateName</th>
+      <th>Census_ActivationChannel</th>
+      <th>Census_ChassisTypeName</th>
+      <th>Census_OSBranch</th>
+      <th>Census_OSEdition</th>
+      <th>SkuEdition</th>
+      <th>Census_FlightRing</th>
+      <th>Census_PrimaryDiskTypeName</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>21</td>
+      <td>3</td>
+      <td>11</td>
+      <td>9</td>
+      <td>5</td>
+      <td>3</td>
+      <td>9</td>
+      <td>4</td>
+      <td>5</td>
+      <td>41</td>
+      <td>16</td>
+      <td>26</td>
+      <td>7</td>
+      <td>9</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
